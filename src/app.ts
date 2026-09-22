@@ -18,7 +18,7 @@ export function createApp(db: AppDatabase): Express {
   const users = new UserRepository(db);
   const students = new StudentRepository(db);
   const tokens = new TokenRepository(db);
-  const authService = new AuthService(users, tokens);
+  const authService = new AuthService(users, tokens, students);
 
   const app = express();
   app.use(express.json());

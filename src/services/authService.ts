@@ -6,6 +6,7 @@ import { config } from "../config/env";
 import { conflict, unauthorized } from "../errors/httpError";
 import type { UserRepository } from "../repositories/userRepository";
 import type { TokenRepository } from "../repositories/tokenRepository";
+import type { StudentRepository } from "../repositories/studentRepository";
 
 export interface PublicUser {
   id: number;
@@ -24,6 +25,7 @@ export class AuthService {
   constructor(
     private readonly users: UserRepository,
     private readonly tokens: TokenRepository,
+    private readonly students: StudentRepository,
   ) {}
 
   async register(email: string, password: string): Promise<PublicUser> {
@@ -39,10 +41,26 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<{ token: string; user: PublicUser }> {
+    // Se puede iniciar sesión con una cuenta de usuario (registro) o con
+    // las credenciales de un estudiante (email + password).
     const user = this.users.findByEmail(email);
-    if (!user) throw unauthorized("Credenciales inválidas");
+    const student = user ? undefined : this.students.findByEmail(email);
+    const account = user
+      ? { id: user.id, email: user.email, hash: user.password_hash, kind: "user" }
+      : student
+        ? {
+            id: student.id,
+            email: student.email,
+            hash: student.password_hash,
+            kind: "student",
+          }
+        : undefined;
 
-    const ok = await bcrypt.compare(password, user.password_hash);
+    if (!account || account.hash === "") {
+      throw unauthorized("Credenciales inválidas");
+    }
+
+    const ok = await bcrypt.compare(password, account.hash);
     if (!ok) throw unauthorized("Credenciales inválidas");
 
     const options: SignOptions = {
@@ -50,11 +68,11 @@ export class AuthService {
       jwtid: randomUUID(),
     };
     const token = jwt.sign(
-      { sub: String(user.id), email: user.email },
+      { sub: String(account.id), email: account.email, kind: account.kind },
       config.jwtSecret,
       options,
     );
-    return { token, user: { id: user.id, email: user.email } };
+    return { token, user: { id: account.id, email: account.email } };
   }
 
   /** Revoca el token actual (logout) usando su jti y expiración. */

@@ -42,6 +42,12 @@ export class StudentRepository {
       .get(id) as StudentRow | undefined;
   }
 
+  findByEmail(email: string): StudentRow | undefined {
+    return this.db
+      .prepare("SELECT * FROM students WHERE email = ?")
+      .get(email) as StudentRow | undefined;
+  }
+
   create(input: StudentInput): StudentRow {
     const stmt = this.db.prepare(
       `INSERT INTO students (nombre, apellido, matricula, email, password_hash)
