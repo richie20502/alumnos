@@ -9,6 +9,7 @@ import { AuthService } from "./services/authService";
 import { createAuthRouter } from "./routes/authRoutes";
 import { createStudentRouter } from "./routes/studentRoutes";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
+import cors from "cors";
 
 /**
  * Construye la aplicación Express con todas las dependencias inyectadas
@@ -21,6 +22,15 @@ export function createApp(db: AppDatabase): Express {
   const authService = new AuthService(users, tokens, students);
 
   const app = express();
+
+  app.use(
+    cors({
+      origin: "http://localhost:8081",
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    }),
+  );
+  
   app.use(express.json());
 
   app.get("/health", (_req, res) => {

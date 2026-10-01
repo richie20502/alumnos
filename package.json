@@ -6,17 +6,27 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "start": "node dist/server.js",
+    "start": "nodemon dist/server.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
-  "keywords": ["api", "rest", "express", "typescript", "sqlite", "jwt", "students"],
+  "keywords": [
+    "api",
+    "rest",
+    "express",
+    "typescript",
+    "sqlite",
+    "jwt",
+    "students"
+  ],
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cors": "^2.8.6",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.14",
     "swagger-ui-express": "^5.0.1",
     "zod": "^3.23.8"
   },
