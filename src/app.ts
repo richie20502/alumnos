@@ -5,6 +5,7 @@ import type { AppDatabase } from "./db/database";
 import { UserRepository } from "./repositories/userRepository";
 import { StudentRepository } from "./repositories/studentRepository";
 import { TokenRepository } from "./repositories/tokenRepository";
+import { RefreshTokenRepository } from "./repositories/refreshTokenRepository";
 import { AuthService } from "./services/authService";
 import { createAuthRouter } from "./routes/authRoutes";
 import { createStudentRouter } from "./routes/studentRoutes";
@@ -19,7 +20,8 @@ export function createApp(db: AppDatabase): Express {
   const users = new UserRepository(db);
   const students = new StudentRepository(db);
   const tokens = new TokenRepository(db);
-  const authService = new AuthService(users, tokens, students);
+  const refreshTokens = new RefreshTokenRepository(db);
+  const authService = new AuthService(users, tokens, students, refreshTokens);
 
   const app = express();
 
