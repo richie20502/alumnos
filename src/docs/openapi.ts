@@ -46,7 +46,22 @@ export const openapiSpec = {
         type: "object",
         properties: {
           token: { type: "string", example: "eyJhbGciOiJIUzI1NiIsInR5cCI6..." },
+          refreshToken: { type: "string", example: "eyJhbGciOiJIUzI1NiIsInR5cCI6..." },
           user: { $ref: "#/components/schemas/PublicUser" },
+        },
+      },
+      RefreshTokenRequest: {
+        type: "object",
+        required: ["refreshToken"],
+        properties: {
+          refreshToken: { type: "string", example: "eyJhbGciOiJIUzI1NiIsInR5cCI6..." },
+        },
+      },
+      RefreshTokenResponse: {
+        type: "object",
+        properties: {
+          token: { type: "string", example: "eyJhbGciOiJIUzI1NiIsInR5cCI6..." },
+          refreshToken: { type: "string", example: "eyJhbGciOiJIUzI1NiIsInR5cCI6..." },
         },
       },
       StudentInput: {
@@ -177,6 +192,55 @@ export const openapiSpec = {
                 schema: {
                   type: "object",
                   properties: { message: { type: "string", example: "Sesión cerrada" } },
+                },
+              },
+            },
+          },
+          "401": { description: "No autenticado", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+        },
+      },
+    },
+    "/api/auth/refresh": {
+      post: {
+        tags: ["Auth"],
+        summary: "Renovar token de acceso",
+        description: "Intercambia un refresh token válido por un nuevo access token y refresh token (rotación)",
+        security: [],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/RefreshTokenRequest" },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Tokens renovados",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/RefreshTokenResponse" },
+              },
+            },
+          },
+          "401": { description: "Refresh token inválido o expirado", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+        },
+      },
+    },
+    "/api/auth/me": {
+      get: {
+        tags: ["Auth"],
+        summary: "Obtener usuario actual",
+        description: "Devuelve la información del usuario autenticado basándose en el token JWT",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": {
+            description: "Usuario autenticado",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: { user: { $ref: "#/components/schemas/PublicUser" } },
                 },
               },
             },
